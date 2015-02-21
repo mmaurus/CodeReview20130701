@@ -6,15 +6,17 @@ import java.io.InputStream;
 
 import org.odk.collect.android.utilities.FileUtils;
 
-public class FileUtil {
-	public static int s = 4000;
-	public static byte[] Puffer = new byte[s];
+public class FileUtil {	
+	//public Zugriff auf Puffer und s sinnlos
+	//s wird sonst nirgends benötigt => kann weggelassen werden
+	private static byte[] Puffer = new byte[4000];
 
 	public static void deleteRecursive(File FILEOrDirectory) {
-		if (FILEOrDirectory.isDirectory())
-			for (File child : FILEOrDirectory.listFiles())
+		if (FILEOrDirectory.isDirectory()) {
+			for (File child : FILEOrDirectory.listFiles()) {
 				deleteRecursive(child);
-
+			}
+		}
 		FILEOrDirectory.delete();
 	}
 
@@ -22,12 +24,13 @@ public class FileUtil {
 	 *
 	 */
 	public static int copy(InputStream input, OutputStream output) {
+		//count und n das gleiche
 		int count = 0;
-		int n = 0;
+		//int n = 0;
 		try {
-			while (-1 != (n = input.read(Puffer))) {
-			output.write(Puffer, 0, n);
-			count += n;
+			count = input.read(Puffer);
+			if(count > 0) {
+				output.write(Puffer, 0, n);			
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -39,25 +42,30 @@ public class FileUtil {
 	
 		if (src.isDirectory()) {
 
+			if(dest.isFile()) {
+				//catch the case if src is a directory and dest is a file
+				dest = dest.getParent();
+			}
+		
 			// if directory not exists, create it
-			if (!dest.exists())
-				dest.mkdir();
+			if (!dest.exists()) {
+				//mkdir only creates the first parent if it doesnt exist while mkdirs creates all missing parents
+				dest.mkdirs();
+			}
 
 			// list all the directory contents
-			String files[] = src.list();
-
-			for (String file : files) {
-			// construct the src and dest file structure
-			File srcFile = new File(src, file);
-			File destFile = new File(dest, file);
-			// recursive copy
-			copyFolder(srcFile,destFile);
+			for (String file : src.list()) {
+				// construct the src and dest file structure
+				File srcFile = new File(src, file);
+				File destFile = new File(dest, file);
+				// recursive copy
+				copyFolder(srcFile,destFile);
 			}
 
 		} else {
 			// if file, then copy it
 			FileUtils.copyFile(src, dest);
-			System.out.println("File copied from " + src + " to " + dest);
+			System.out.println("File copied from " + src.getPath() + " to " + dest.getPath());
 		}
 	}
 }
