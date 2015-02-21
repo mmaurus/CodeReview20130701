@@ -9,15 +9,16 @@ import org.odk.collect.android.utilities.FileUtils;
 public class FileUtil {	
 	//public Zugriff auf Puffer und s sinnlos
 	//s wird sonst nirgends benötigt => kann weggelassen werden
-	private static byte[] Puffer = new byte[4000];
+	private static byte[] buffer = new byte[4000]; //english naming and lowercase
 
-	public static void deleteRecursive(File FILEOrDirectory) {
-		if (FILEOrDirectory.isDirectory()) {
-			for (File child : FILEOrDirectory.listFiles()) {
+	//english naming and lowercase for FILEOrDirectory
+	public static void deleteRecursive(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory()) {
+			for (File child : fileOrDirectory.listFiles()) {
 				deleteRecursive(child);
 			}
 		}
-		FILEOrDirectory.delete();
+		fileOrDirectory.delete();
 	}
 
 	/**
@@ -28,9 +29,9 @@ public class FileUtil {
 		int count = 0;
 		//int n = 0;
 		try {
-			count = input.read(Puffer);
-			if(count > 0) {
-				output.write(Puffer, 0, n);			
+			count = input.read(buffer);
+			if(count > -1) { //count is in interval [-1;max_int]
+				output.write(buffer, 0, n);			
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -42,22 +43,21 @@ public class FileUtil {
 	
 		if (src.isDirectory()) {
 
-			if(dest.isFile()) {
-				//catch the case if src is a directory and dest is a file
-				dest = dest.getParent();
-			}
-		
 			// if directory not exists, create it
 			if (!dest.exists()) {
 				//mkdir only creates the first parent if it doesnt exist while mkdirs creates all missing parents
 				dest.mkdirs();
 			}
+			if(dest.isFile()) {
+				//catch the case if src is a directory and dest is a file
+				dest = dest.getParent();
+			}
 
 			// list all the directory contents
-			for (String file : src.list()) {
+			for (String filename : src.list()) {
 				// construct the src and dest file structure
-				File srcFile = new File(src, file);
-				File destFile = new File(dest, file);
+				File srcFile = new File(src, filename);
+				File destFile = new File(dest, filename);
 				// recursive copy
 				copyFolder(srcFile,destFile);
 			}
